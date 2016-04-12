@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>reveal.js – The HTML Presentation Framework</title>
+
+		<meta name="description" content="A framework for easily creating beautiful presentations using HTML">
+		<meta name="author" content="Hakim El Hattab">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="sunburst.css">
+
+    <style>
+    .green  { color: green !important }
+    .red    { color: red !important }
+    </style>
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<div class="slides">
+        <section>
+          <h1>Crystal</h1>
+          <small>Version 0.15.0</small>
+        </section>
+
+        <section>
+          <h2>Similarities/Differences</h2>
+          <ul>
+            <li class="fragment highlight-current-green">syntax similar to ruby</li>
+            <li class="fragment highlight-current-green">standard library similar to ruby</li>
+            <li class="fragment highlight-current-red">statically typed with type inference</li>
+            <li class="fragment highlight-current-red">compiled to machine code using the LLVM</li>
+            <li class="fragment highlight-current-red">no eval, instance_eval, send, ... use macros instead</li>
+            <li class="fragment highlight-current-green">monkey-patching is possible (open classes)</li>
+						<li class="fragment highlight-current-green">garbage collected</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Benefits</h2>
+          <ul>
+            <li class="fragment highlight-current-green">performance</li>
+            <li class="fragment highlight-current-green">self-contained executables</li>
+            <li class="fragment highlight-current-green">type-safety</li>
+            <li class="fragment highlight-current-green">nil-safety</li>
+            <li class="fragment highlight-current-green">c-bindings are easy to implement</li>
+            <li class="fragment highlight-current-green">formatting tool like in go</li>
+            <li class="fragment highlight-current-green">method overloading</li>
+            <!--<li class="fragment">asynchronous by default</li>-->
+          </ul>
+        </section>
+
+        <section>
+          <h2>Drawbacks</h2>
+          <ul>
+            <li class="fragment highlight-current-red">compiler still under development</li>
+            <li class="fragment highlight-current-red">not "production-ready" (depends on your requirements)</li>
+            <li class="fragment highlight-current-red">compiler has some bugs and lacks some features</li>
+            <li class="fragment highlight-current-red">no multi-threading yet, but fibers are implemented (cooperative multitasking)</li>
+            <li class="fragment highlight-current-red">small community, few libraries</li>
+            <!--<li class="fragment">asynchronous by default</li>-->
+          </ul>
+        </section>
+
+        <!-- Example 1 -->
+        <section>
+          <h2>Example 1</h2>
+          <pre><code class="crystal" data-trim data-noescape>
+name = "Bobby"
+puts "Hello #{name}!"
+#=> Hello Bobby
+          </code></pre>
+        </section>
+
+        <!-- Example 2 -->
+        <section>
+          <h2>Example 2</h2>
+          <pre><code class="crystal" data-trim data-noescape>
+puts ("1".."5").map(&.to_i).sum <span class="fragment"># ruby: map(<mark>&:</mark>to_i)</span>
+#=> 15
+          </code></pre>
+        </section>
+
+        <!-- CLASSES -->
+        <section>
+          <h2>Classes and Methods</h2>
+          <pre><code class="crystal" data-trim data-noescape>
+class Car
+  <span class="fragment current-visible"># ruby: attr_reader, attr_accessor</span>
+  getter    wheel_count : Int <span class="fragment current-visible"># type specifier is optional</span>
+  property  name : String
+  <span class="fragment current-visible"># NOTE: wheel_count and name are not allowed to be nil!</span>
+  <span class="fragment current-visible"># Coffeescript-like automatic instance var assignment</span>
+  def initialize(@name, @wheel_count)
+    @gas_tank = GasTank.new
+  end
+
+  <span class="fragment current-visible"># type specifier FluidAmount is optional</span>
+  def fill_tank(amount : FluidAmount)
+    raise ArgumentError if amount <= 0
+    @gas_tank.fill_up(amount)
+  end
+end
+          </code></pre>
+        </section>
+
+        <!-- METHOD OVERLOADING -->
+        <section>
+          <h2>Method Overloading</h2>
+          <pre><code class="crystal" data-trim data-noescape>
+def process_event(event : StartEvent)
+  # do some stuff specific to a StartEvent
+end
+
+def process_event(event : EndEvent)
+  # do some stuff specific to an EndEvent
+end
+
+<span class="fragment">process_event(EndEvent.new) # calls the second definition</span>
+
+<span class="fragment"># No need for boilerplate code like in ruby.</span>
+
+          </code></pre>
+        </section>
+
+        <!-- UNION TYPES -->
+        <section>
+          <h2>Union Types and Nil</h2>
+          <pre><code class="crystal" data-trim data-noescape>
+x = [1, nil].sample
+puts typeof(x)
+<span class="fragment">#=> Int32?</span>
+<span class="fragment"># Int32? == Int32 | Nil</span>
+          </code></pre>
+        </section>
+
+        <!-- HANDLING NIL -->
+        <section>
+          <h2>Handling Nil</h2>
+          <pre><code class="crystal" data-trim data-noescape>
+x = [1, nil].sample
+puts x + 1
+<span class="fragment">#=> COMPILER ERROR: Undefined method '+' for Nil</span>
+          </code></pre>
+        </section>
+
+        <!-- HANDLING NIL -->
+        <section>
+          <h2>Handling Nil</h2>
+          <pre><code class="crystal" data-trim data-noescape>
+x = [1, nil].sample
+<span class="fragment">
+if x
+  puts x + 1 <span class="fragment"># compiler knows it cant be nil</span>
+else
+  puts "nil :-("
+end
+</span>
+<span class="fragment">
+case x
+  when Int32  then puts x+1
+  else        then puts "nil :-("
+end
+</span>
+          </code></pre>
+        </section>
+
+        <!-- GENERICS -->
+        <section>
+          <h2>Generics</h2>
+          <pre><code class="crystal" data-trim data-noescape>
+arr = [1,2,3]
+puts typeof(arr)
+<span class="fragment">#=> Array(Int32)</span>
+
+<span class="fragment">
+arr = [1,"test", Car.new]
+puts typeof(arr)
+<span class="fragment">#=> Array(Int32 | String | Car)</span>
+</span>
+          </code></pre>
+        </section>
+
+        <!-- MACROS -->
+        <section>
+          <h2>Macros</h2>
+          <pre><code class="crystal" data-trim data-noescape>
+macro attr_accessor(name)
+  def {{name}}
+    @{{name}}
+  end
+
+  def {{name}}=(value)
+    @{{name}} = value
+  end
+end
+          </code></pre>
+        </section>
+
+				<!-- POWER-ASSERT MACRO -->
+				<section>
+					<h2>Power-Assert Macro</h2>
+					<pre><code class="crystal" data-trim data-noescape>
+macro assert(exp)
+  {% if exp.class_name == "BinaryOp" %}
+    ...
+  {% else %}
+    ...
+  {% end %}
+end
+					</code></pre>
+				</section>
+
+				<!-- POWER-ASSERT MACRO -->
+				<section>
+					<h2>Power-Assert Macro</h2>
+					<pre><code class="crystal" data-trim data-noescape>
+a, b = 1, 0
+<span class="fragment">assert(a == 1)</span>
+<span class="fragment">#=> passes</span>
+
+<span class="fragment">
+assert(a == b) <span class="fragment"># RUBY: assertion failed</span>
+</span>
+<span class="fragment">#=> fails:
+	  a == b
+	  | |  |
+	  | false
+	  |    |
+	  |    0
+	  1
+</span>
+					</code></pre>
+				</section>
+
+        <!-- POWER-ASSERT MACRO -->
+        <section>
+          <h2>Power-Assert Macro</h2>
+          <ul>
+            <li class="fragment highlight-current-green">the different assert variants in e.g. minitest only exist to print more detailed output in case of failure</li>
+            <li class="fragment highlight-current-green">no need to have assert_equals, assert_includes, assert_empty, ...</li>
+            <li class="fragment highlight-current-green">with power-asserts: just use the assert macro:
+              <ul>
+                <li>assert(a < b)</li>
+                <li>assert([1,2,3].include?(5))</li>
+              </ul>
+            </li>
+          </ul>
+        </section>
+
+        <section>
+          <ul>
+            <li>Homepage: <a href="http://crystal-lang.org/">crystal-lang.org</a></li>
+            <li>List of libraries: <a href="https://github.com/veelenga/awesome-crystal">github.com/veelenga/awesome-crystal</a></li>
+            <li>My port of the stretcher gem: <a href="https://github.com/Ragmaanir/soegen">github.com/Ragmaanir/soegen</a></li>
+          </ul>
+        </section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
